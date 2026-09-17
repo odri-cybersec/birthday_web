@@ -9,7 +9,7 @@
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen p-4 sm:p-8 font-sans">
 
-  <!-- Экран ввода PIN -->
+  <!-- Вход по PIN -->
   <div id="pin-screen" class="min-h-[80vh] flex flex-col items-center justify-center">
     <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
       <div class="text-3xl">🔐</div>
@@ -24,7 +24,7 @@
   <div id="dashboard" class="hidden max-w-5xl mx-auto space-y-8">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800 pb-6">
       <div>
-        <h1 class="text-3xl font-black text-rose-400">АНАЛИТИКА ТУСОВКИ 📊</h1>
+        <h1 class="text-3xl font-black text-rose-400 tracking-tight">АНАЛИТИКА ТУСОВКИ 📊</h1>
         <p class="text-sm text-zinc-400">Сводка по заезду в коттедж и закупкам</p>
       </div>
       <div class="flex items-center gap-4">
@@ -35,27 +35,41 @@
       </div>
     </div>
 
-    <!-- Графики: 3 карточки -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl flex flex-col justify-between">
-        <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4 text-center">Вероятность явки</h3>
-        <canvas id="attendanceChart" class="max-h-60"></canvas>
-      </div>
-      
-      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl flex flex-col justify-between">
-        <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4 text-center">Градус безумия</h3>
-        <canvas id="drinkingChart" class="max-h-60"></canvas>
+    <!-- Графики: 2 сверху, Барная карта широкая снизу -->
+    <div class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Явка -->
+        <div class="bg-zinc-900/80 border border-zinc-800/80 p-6 rounded-3xl backdrop-blur">
+          <h3 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-6 text-center">Вероятность явки</h3>
+          <div class="relative h-64 w-full">
+            <canvas id="attendanceChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Градус -->
+        <div class="bg-zinc-900/80 border border-zinc-800/80 p-6 rounded-3xl backdrop-blur">
+          <h3 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-6 text-center">Градус безумия</h3>
+          <div class="relative h-64 w-full">
+            <canvas id="drinkingChart"></canvas>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl flex flex-col justify-between md:col-span-2 lg:col-span-1">
-        <h3 class="text-sm font-mono uppercase tracking-wider text-rose-400 mb-4 text-center">Барная карта (закупка) 🍻</h3>
-        <canvas id="alcoChart" class="max-h-60"></canvas>
+      <!-- Барная карта на всю ширину -->
+      <div class="bg-zinc-900/80 border border-zinc-800/80 p-6 rounded-3xl backdrop-blur">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-mono uppercase tracking-widest text-rose-400">Барная карта (закупка) 🍻</h3>
+          <span class="text-xs text-zinc-500 font-mono">по голосам гостей</span>
+        </div>
+        <div class="relative h-72 w-full">
+          <canvas id="alcoChart"></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Таблица гостей -->
     <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 overflow-hidden">
-      <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4">Сводная таблица гостей</h3>
+      <h3 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-4">Сводная таблица гостей</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm text-zinc-300">
           <thead class="text-xs font-mono uppercase bg-zinc-950 text-zinc-500 border-b border-zinc-800">
@@ -74,7 +88,7 @@
   </div>
 
   <script>
-    // ВСТАВЬ СВОЙ URL:
+    // ВСТАВЬ СЮДА СВОЙ URL:
     const SHEETDB_URL = "https://sheetdb.io/api/v1/ol51f92mkep3z";
     const SECRET_PIN = "6767";
 
@@ -92,7 +106,7 @@
       if (e.key === 'Enter') checkPin();
     });
 
-    // Преобразование дат из формата Google Sheets в читаемый вид
+    // Преобразование числовых дат Google Sheets в читаемый формат
     function formatDate(val) {
       if (!val) return '-';
       const num = parseFloat(String(val).replace(',', '.'));
@@ -106,7 +120,7 @@
       return val;
     }
 
-    // Словарь категорий крепкого и слабого алкоголя
+    // Словарь категорий алкоголя
     const ALCO_CATEGORIES = {
       'Пиво / Крафт': /(пив[а-я]*|крафт|beer|эль|ipa|лагер|пивко|пивас|стаут)/i,
       'Сидр': /(сидр|сидор|cider|медовух)/i,
@@ -119,7 +133,7 @@
       'Настойки / Ликеры': /(настойк[а-я]*|ягер|егер|jager|бейлис|лик[её]р)/i
     };
 
-    // Полный фильтр безалкогольного и отказов (игнорируются на графике)
+    // Фильтр безалкогольного (полный игнор)
     const NON_ALCO_REGEX = /(сок|колу|кола|пепси|чай|кофе|минералк|вод[ауы]|лимонад|б\/а|безалког|zero|морс|энергетик|ничего|не пью|нет|-)/i;
 
     function parseDrinks(text) {
@@ -166,7 +180,7 @@
 
         document.getElementById('total-count').innerText = data.length;
 
-        // Рендер таблицы гостей
+        // Таблица гостей
         const tbody = document.getElementById('guests-tbody');
         tbody.innerHTML = data.slice().reverse().map(g => `
           <tr class="hover:bg-zinc-800/30 transition">
@@ -178,7 +192,7 @@
           </tr>
         `).join('');
 
-        // Сбор статистики
+        // Сбор данных
         const attCounts = { 'Буду железно': 0, 'Скорее да': 0, 'Скорее нет': 0, 'Скип': 0 };
         const drinkCounts = { 'В салат': 0, 'Кураж': 0, 'Символически': 0, 'Трезвый': 0 };
         const alcoStats = {};
@@ -189,7 +203,6 @@
           if (attCounts[att] !== undefined) attCounts[att]++;
           if (drinkCounts[drk] !== undefined) drinkCounts[drk]++;
 
-          // Анализируем алкоголь только у тех, кто идет и не выбрал "Трезвый"
           if (att !== 'Скип' && drk !== 'Трезвый') {
             const drinks = parseDrinks(item["Что будет пить"]);
             drinks.forEach(d => {
@@ -207,10 +220,22 @@
             datasets: [{
               data: Object.values(attCounts),
               backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'],
-              borderWidth: 0
+              borderWidth: 3,
+              borderColor: '#18181b',
+              hoverOffset: 6
             }]
           },
-          options: { plugins: { legend: { labels: { color: '#a1a1aa' } } } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: '#a1a1aa', padding: 16, boxWidth: 12, usePointStyle: true }
+              }
+            }
+          }
         });
 
         // 2. График: Градус
@@ -220,40 +245,62 @@
           data: {
             labels: Object.keys(drinkCounts),
             datasets: [{
-              label: 'Людей',
               data: Object.values(drinkCounts),
               backgroundColor: ['#f43f5e', '#a855f7', '#06b6d4', '#10b981'],
-              borderRadius: 8
+              borderRadius: 10,
+              maxBarThickness: 44
             }]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
-              y: { beginAtZero: true, ticks: { stepSize: 1, color: '#71717a' }, grid: { color: '#27272a' } },
-              x: { ticks: { color: '#a1a1aa' }, grid: { display: false } }
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1, color: '#71717a', font: { size: 11 } },
+                grid: { color: 'rgba(255, 255, 255, 0.05)' }
+              },
+              x: {
+                ticks: { color: '#d4d4d8', maxRotation: 0, minRotation: 0, font: { size: 12 } },
+                grid: { display: false }
+              }
             },
             plugins: { legend: { display: false } }
           }
         });
 
-        // 3. График: Барная карта (сортировка по популярности)
+        // 3. График: Барная карта
         const sortedAlco = Object.entries(alcoStats).sort((a, b) => b[1] - a[1]);
+        const chartLabels = sortedAlco.length > 0 ? sortedAlco.map(x => x[0]) : ['Пока нет данных'];
+        const chartValues = sortedAlco.length > 0 ? sortedAlco.map(x => x[1]) : [0];
+
         if (alcoChart) alcoChart.destroy();
         alcoChart = new Chart(document.getElementById('alcoChart'), {
           type: 'bar',
           data: {
-            labels: sortedAlco.map(x => x[0]),
+            labels: chartLabels,
             datasets: [{
               label: 'Голосов',
-              data: sortedAlco.map(x => x[1]),
+              data: chartValues,
               backgroundColor: '#fb7185',
-              borderRadius: 6
+              borderRadius: 8,
+              maxBarThickness: 28
             }]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             indexAxis: 'y',
             scales: {
-              x: { beginAtZero: true, ticks: { stepSize: 1, color: '#71717a' }, grid: { color: '#27272a' } },
-              y: { ticks: { color: '#e4e4e7', font: { size: 11 } }, grid: { display: false } }
+              x: {
+                beginAtZero: true,
+                ticks: { stepSize: 1, color: '#71717a' },
+                grid: { color: 'rgba(255, 255, 255, 0.05)' }
+              },
+              y: {
+                ticks: { color: '#f4f4f5', font: { size: 13, weight: '500' } },
+                grid: { display: false }
+              }
             },
             plugins: { legend: { display: false } }
           }
