@@ -7,23 +7,23 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .glass {
-      background: rgba(22, 22, 30, 0.78);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: rgba(20, 20, 28, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen relative font-sans selection:bg-rose-500 selection:text-white flex items-center justify-center p-4">
 
-  <!-- Фиксированный фон на весь экран (на смартфонах фокус левее, на пк по центру) -->
+  <!-- Фиксированный чистый фон БЕЗ блюра на фоне -->
   <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div 
-      class="w-full h-full bg-cover bg-left md:bg-center transition-all duration-500 scale-105"
+      class="w-full h-full bg-cover bg-left md:bg-center transition-all duration-500 scale-100"
       style="background-image: url('./bg.jpg');">
     </div>
-    <!-- Слой затемнения для читаемости текста -->
-    <div class="absolute inset-0 bg-black/60 md:bg-black/50 backdrop-blur-[2px]"></div>
+    <!-- Легкое прозрачное затемнение без блюра, чтобы лицо именинника было четко видно -->
+    <div class="absolute inset-0 bg-black/35 md:bg-black/25"></div>
   </div>
 
   <!-- Главная карточка опросника (строго по центру экрана) -->
@@ -55,7 +55,7 @@
           id="name"
           required
           placeholder="имя / ник в тг / как записан в контактах"
-          class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
+          class="w-full px-4 py-3 rounded-2xl bg-black/50 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
         >
       </div>
 
@@ -65,19 +65,19 @@
           02 // ты же понимаешь что надо быть?
         </label>
         <div class="grid grid-cols-1 gap-2.5 text-sm">
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Буду железно" required class="accent-rose-500 w-4 h-4 mr-3">
             <span>я точно буду // и я прыгаю в бассейн</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Скорее да" class="accent-rose-500 w-4 h-4 mr-3">
             <span>🤙 6-7 из 10 что доеду.. ))</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Скорее нет" class="accent-rose-500 w-4 h-4 mr-3">
             <span>вряд ли буду, маловероятно</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Скип" class="accent-rose-500 w-4 h-4 mr-3">
             <span>не я минус. я не пойду на лучший и самый разъебный день рождения.</span>
           </label>
@@ -90,19 +90,19 @@
           03 // а вщ будешь пить?
         </label>
         <div class="grid grid-cols-1 gap-2.5 text-sm">
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="drinking" value="В салат" required class="accent-rose-500 w-4 h-4 mr-3">
             <span>я буду пить ВСЁ и ВСЁ ВРЕМЯ</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="drinking" value="Кураж" class="accent-rose-500 w-4 h-4 mr-3">
             <span>я нормально буду пить)</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="drinking" value="Символически" class="accent-rose-500 w-4 h-4 mr-3">
             <span>ну так поскольку постольку попью без удовольствия...</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="drinking" value="Трезвый" class="accent-rose-500 w-4 h-4 mr-3">
             <span>фулл трезвость / водитель / держу ситуацию под контролем</span>
           </label>
@@ -119,7 +119,7 @@
           id="alcohol"
           required
           placeholder="джин, сидр, виски с колой, настойки, по стойке смирно..."
-          class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
+          class="w-full px-4 py-3 rounded-2xl bg-black/50 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
         >
       </div>
 
