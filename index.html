@@ -6,48 +6,54 @@
   <title>ДЕНЬ РОЖДЕНИЯ НИКИ ВСЕМ БЫТЬ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .glass {
-      background: rgba(20, 20, 28, 0.82);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    /* Полупрозрачное легкое стекло — сквозь него отлично видно фон */
+    .glass-card {
+      background: rgba(12, 12, 18, 0.48);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    /* Текстовая тень для идеальной читаемости на любом фоне */
+    .text-glow {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
     }
   </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen relative font-sans selection:bg-rose-500 selection:text-white flex items-center justify-center p-4">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen relative font-sans selection:bg-rose-500 selection:text-white flex items-center justify-center p-3 sm:p-6">
 
-  <!-- Фиксированный чистый фон БЕЗ блюра на фоне -->
+  <!-- Фиксированный четкий фон -->
   <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div 
       class="w-full h-full bg-cover bg-left md:bg-center transition-all duration-500 scale-100"
       style="background-image: url('./bg.jpg');">
     </div>
-    <!-- Легкое прозрачное затемнение без блюра, чтобы лицо именинника было четко видно -->
-    <div class="absolute inset-0 bg-black/35 md:bg-black/25"></div>
+    <!-- Минимальное затемнение, чтобы сохранить максимальную яркость фото -->
+    <div class="absolute inset-0 bg-black/20 md:bg-black/30"></div>
   </div>
 
-  <!-- Главная карточка опросника (строго по центру экрана) -->
-  <main id="app-card" class="glass w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl my-6 transition-all duration-300 relative z-10">
+  <!-- Полупрозрачная анкета (просвечивает фон) -->
+  <main id="app-card" class="glass-card w-full max-w-lg rounded-3xl p-5 sm:p-8 my-4 transition-all duration-300 relative z-10">
     
     <!-- Шапка -->
     <header class="text-center mb-6">
-      <div class="inline-block px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-mono uppercase tracking-widest mb-2 border border-rose-500/30">
+      <div class="inline-block px-3 py-1 rounded-full bg-rose-500/30 text-rose-200 text-xs font-mono uppercase tracking-widest mb-2 border border-rose-500/40 backdrop-blur-md">
         коттеджный разъеб • 21-22 ноября 2026
       </div>
-      <h1 class="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-purple-300 to-amber-300">
+      <h1 class="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-purple-200 to-amber-300 drop-shadow-md">
         ЛУЧШИЙ ДЕНЬ РОЖДЕНИЯ В 2026 ГОДУ
       </h1>
-      <p class="text-xs sm:text-sm text-zinc-400 mt-2 leading-relaxed">
+      <p class="text-xs sm:text-sm text-zinc-300 mt-2 leading-relaxed text-glow">
         лучший день рождения ники гедеванишвили
       </p>
     </header>
 
     <!-- Форма -->
-    <form id="rsvp-form" class="space-y-6">
+    <form id="rsvp-form" class="space-y-5">
       
       <!-- 01: Имя -->
       <div class="space-y-2">
-        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-400">
+        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-300 text-glow">
           01 // а ты кто?
         </label>
         <input
@@ -55,71 +61,71 @@
           id="name"
           required
           placeholder="имя / ник в тг / как записан в контактах"
-          class="w-full px-4 py-3 rounded-2xl bg-black/50 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
+          class="w-full px-4 py-3 rounded-2xl bg-black/35 border border-white/20 focus:border-rose-400 focus:bg-black/55 focus:ring-1 focus:ring-rose-400 outline-none text-sm text-white placeholder:text-zinc-400 backdrop-blur-sm transition"
         >
       </div>
 
       <!-- 02: Явка -->
       <div class="space-y-2">
-        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-400">
+        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-300 text-glow">
           02 // ты же понимаешь что надо быть?
         </label>
-        <div class="grid grid-cols-1 gap-2.5 text-sm">
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+        <div class="grid grid-cols-1 gap-2 text-sm">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="attendance" value="Буду железно" required class="accent-rose-500 w-4 h-4 mr-3">
-            <span>я точно буду // и я прыгаю в бассейн</span>
+            <span class="text-glow font-medium">я точно буду // и я прыгаю в бассейн</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="attendance" value="Скорее да" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>🤙 6-7 из 10 что доеду.. ))</span>
+            <span class="text-glow font-medium">🤙 6-7 из 10 что доеду.. ))</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="attendance" value="Скорее нет" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>вряд ли буду, маловероятно</span>
+            <span class="text-glow">вряд ли буду, маловероятно</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="attendance" value="Скип" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>не я минус. я не пойду на лучший и самый разъебный день рождения.</span>
+            <span class="text-zinc-300 text-glow">не я минус. я не пойду на лучший и самый разъебный день рождения.</span>
           </label>
         </div>
       </div>
 
       <!-- 03: Выпивка -->
       <div class="space-y-2">
-        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-400">
+        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-300 text-glow">
           03 // а вщ будешь пить?
         </label>
-        <div class="grid grid-cols-1 gap-2.5 text-sm">
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+        <div class="grid grid-cols-1 gap-2 text-sm">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="drinking" value="В салат" required class="accent-rose-500 w-4 h-4 mr-3">
-            <span>я буду пить ВСЁ и ВСЁ ВРЕМЯ</span>
+            <span class="text-glow font-medium">я буду пить ВСЁ и ВСЁ ВРЕМЯ</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="drinking" value="Кураж" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>я нормально буду пить)</span>
+            <span class="text-glow font-medium">я нормально буду пить)</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="drinking" value="Символически" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>ну так поскольку постольку попью без удовольствия...</span>
+            <span class="text-glow">ну так поскольку постольку попью без удовольствия...</span>
           </label>
-          <label class="flex items-center p-3 rounded-2xl bg-black/50 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
+          <label class="flex items-center p-3 rounded-2xl bg-black/35 border border-white/15 hover:border-white/30 hover:bg-black/50 cursor-pointer backdrop-blur-sm transition">
             <input type="radio" name="drinking" value="Трезвый" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>фулл трезвость / водитель / держу ситуацию под контролем</span>
+            <span class="text-zinc-300 text-glow">фулл трезвость / водитель / держу ситуацию под контролем</span>
           </label>
         </div>
       </div>
 
       <!-- 04: Конкретный алкоголь -->
       <div class="space-y-2">
-        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-400">
+        <label class="block text-xs font-mono uppercase tracking-wider text-zinc-300 text-glow">
           04 // ЧТО будешь пить?
         </label>
         <input
           type="text"
           id="alcohol"
           required
-          placeholder="джин, сидр, виски с колой, настойки, по стойке смирно..."
-          class="w-full px-4 py-3 rounded-2xl bg-black/50 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
+          placeholder="джин, сидр, виски с колой, настойки..."
+          class="w-full px-4 py-3 rounded-2xl bg-black/35 border border-white/20 focus:border-rose-400 focus:bg-black/55 focus:ring-1 focus:ring-rose-400 outline-none text-sm text-white placeholder:text-zinc-400 backdrop-blur-sm transition"
         >
       </div>
 
@@ -127,7 +133,7 @@
       <button
         type="submit"
         id="submit-btn"
-        class="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-600 to-amber-500 text-white font-bold tracking-wide shadow-lg hover:opacity-95 active:scale-[0.98] transition cursor-pointer"
+        class="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-600 to-amber-500 text-white font-extrabold tracking-wide shadow-lg shadow-rose-600/30 hover:opacity-95 active:scale-[0.98] transition cursor-pointer"
       >
         Зафиксировать ответ ⚡️
       </button>
@@ -137,14 +143,14 @@
     <div id="success-box" class="hidden text-center py-10 space-y-4">
       <div class="text-6xl animate-bounce">🫡</div>
       <h2 class="text-2xl font-black text-rose-400">БАЗА ЗАПИСАНА</h2>
-      <p class="text-sm text-zinc-300 max-w-xs mx-auto">
+      <p class="text-sm text-zinc-200 max-w-xs mx-auto text-glow">
         твои ответы улетели в таблицу именинника. теперь мы всё о тебе знаем.
       </p>
     </div>
 
     <!-- Ссылка на админку -->
-    <footer class="text-center pt-6">
-      <a href="admin.html" class="text-[11px] text-zinc-500 hover:text-zinc-300 font-mono transition">
+    <footer class="text-center pt-5">
+      <a href="admin.html" class="text-[11px] text-zinc-300 hover:text-white font-mono transition text-glow">
         [ вход в штаб аналитики ]
       </a>
     </footer>
