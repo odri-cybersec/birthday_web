@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin // Разведка ДР</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen p-4 sm:p-8 font-sans">
+
+  <!-- Экран ввода PIN -->
+  <div id="pin-screen" class="min-h-[80vh] flex flex-col items-center justify-center">
+    <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
+      <div class="text-3xl">🔐</div>
+      <h2 class="text-xl font-bold">Вход для организаторов</h2>
+      <input type="password" id="pin-input" maxlength="4" placeholder="PIN" class="w-full text-center tracking-widest text-2xl py-3 rounded-xl bg-black border border-zinc-700 outline-none focus:border-rose-500">
+      <button onclick="checkPin()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold transition">Войти</button>
+      <p id="pin-error" class="text-xs text-rose-400 hidden">Неверный PIN-код</p>
+    </div>
+  </div>
+
+  <!-- Главный дашборд -->
+  <div id="dashboard" class="hidden max-w-5xl mx-auto space-y-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-800 pb-6">
+      <div>
+        <h1 class="text-3xl font-black text-rose-400">АНАЛИТИКА ТУСОВКИ 📊</h1>
+        <p class="text-sm text-zinc-400">Сводка по заезду в коттедж и закупкам</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl text-sm">
+          Всего ответов: <span id="total-count" class="font-bold text-rose-400">0</span>
+        </div>
+        <button onclick="loadData()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-mono">Обновить ⟳</button>
+      </div>
+    </div>
+
+    <!-- Графики -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl">
+        <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4 text-center">Вероятность явки</h3>
+        <canvas id="attendanceChart" class="max-h-64"></canvas>
+      </div>
+      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl">
+        <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4 text-center">Градус безумия</h3>
+        <canvas id="drinkingChart" class="max-h-64"></canvas>
+      </div>
+    </div>
+
+    <!-- Таблица гостей -->
+    <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 overflow-hidden">
+      <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4">Сводная таблица гостей</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-zinc-300">
+          <thead class="text-xs font-mono uppercase bg-zinc-950 text-zinc-500 border-b border-zinc-800">
+            <tr>
+              <th class="p-3">Имя / Никнейм</th>
+              <th class="p-3">Явка</th>
+              <th class="p-3">Настрой</th>
+              <th class="p-3">Что будет пить</th>
+              <th class="p-3">Время ответа</th>
+            </tr>
+          </thead>
+          <tbody id="guests-tbody" class="divide-y divide-zinc-800/50">
+            <!-- Строки генерируются JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Вставь ту же ссылку из SheetDB:
+    const SHEETDB_URL = "https://sheetdb.io/api/v1/9xpw5d92fe5ub";
+    const SECRET_PIN = "6767";
+
+    function checkPin() {
+      if (document.getElementById('pin-input').value === SECRET_PIN) {
+        document.getElementById('pin-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        loadData();
+      } else {
+        document.getElementById('pin-error').classList.remove('hidden');
+      }
+    }
+
+    let attChart, drinkChart;
+
+    async function loadData() {
+      try {
+        const res = await fetch(SHEETDB_URL);
+        const data = await res.json();
+
+        document.getElementById('total-count').innerText = data.length;
+
+        // Отрисовка строк таблицы (доступ по русским именам колонок)
+        const tbody = document.getElementById('guests-tbody');
+        tbody.innerHTML = data.slice().reverse().map(g => `
+          <tr class="hover:bg-zinc-800/30">
+            <td class="p-3 font-semibold text-white">${g["Имя / Никнейм"] || 'Аноним'}</td>
+            <td class="p-3">${g["Придет ли (Явка)"] || '-'}</td>
+            <td class="p-3">${g["Настрой по выпивке"] || '-'}</td>
+            <td class="p-3 text-rose-300">${g["Что будет пить"] || '-'}</td>
+            <td class="p-3 text-xs text-zinc-500">${g["Дата и время ответа"] || '-'}</td>
+          </tr>
+        `).join('');
+
+        // Сбор статистики под графики
+        const attCounts = { 'Буду железно': 0, 'Скорее да': 0, 'Скорее нет': 0, 'Скип': 0 };
+        const drinkCounts = { 'В салат': 0, 'Кураж': 0, 'Символически': 0, 'Трезвый': 0 };
+
+        data.forEach(item => {
+          const att = item["Придет ли (Явка)"];
+          const drk = item["Настрой по выпивке"];
+          if (attCounts[att] !== undefined) attCounts[att]++;
+          if (drinkCounts[drk] !== undefined) drinkCounts[drk]++;
+        });
+
+        // График 1: Явка
+        if (attChart) attChart.destroy();
+        attChart = new Chart(document.getElementById('attendanceChart'), {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(attCounts),
+            datasets: [{
+              data: Object.values(attCounts),
+              backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'],
+              borderWidth: 0
+            }]
+          },
+          options: { plugins: { legend: { labels: { color: '#a1a1aa' } } } }
+        });
+
+        // График 2: Градус
+        if (drinkChart) drinkChart.destroy();
+        drinkChart = new Chart(document.getElementById('drinkingChart'), {
+          type: 'bar',
+          data: {
+            labels: Object.keys(drinkCounts),
+            datasets: [{
+              label: 'Людей',
+              data: Object.values(drinkCounts),
+              backgroundColor: ['#f43f5e', '#a855f7', '#06b6d4', '#10b981']
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1, color: '#71717a' }, grid: { color: '#27272a' } },
+              x: { ticks: { color: '#a1a1aa' }, grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+
+      } catch (e) {
+        alert("Ошибка загрузки данных из таблицы!");
+      }
+    }
+  </script>
+</body>
+</html>
