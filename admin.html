@@ -15,7 +15,7 @@
       <div class="text-3xl">🔐</div>
       <h2 class="text-xl font-bold">Вход для организаторов</h2>
       <input type="password" id="pin-input" maxlength="4" placeholder="PIN" class="w-full text-center tracking-widest text-2xl py-3 rounded-xl bg-black border border-zinc-700 outline-none focus:border-rose-500">
-      <button onclick="checkPin()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold transition">Войти</button>
+      <button onclick="checkPin()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold transition cursor-pointer">Войти</button>
       <p id="pin-error" class="text-xs text-rose-400 hidden">Неверный PIN-код</p>
     </div>
   </div>
@@ -29,21 +29,27 @@
       </div>
       <div class="flex items-center gap-4">
         <div class="bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-xl text-sm">
-          Всего ответов: <span id="total-count" class="font-bold text-rose-400">0</span>
+          Реальных гостей: <span id="total-count" class="font-bold text-rose-400">0</span>
         </div>
-        <button onclick="loadData()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-mono">Обновить ⟳</button>
+        <button onclick="loadData()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-mono transition cursor-pointer">Обновить ⟳</button>
       </div>
     </div>
 
-    <!-- Графики -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl">
+    <!-- Графики: 3 карточки -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl flex flex-col justify-between">
         <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4 text-center">Вероятность явки</h3>
-        <canvas id="attendanceChart" class="max-h-64"></canvas>
+        <canvas id="attendanceChart" class="max-h-60"></canvas>
       </div>
-      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl">
+      
+      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl flex flex-col justify-between">
         <h3 class="text-sm font-mono uppercase tracking-wider text-zinc-400 mb-4 text-center">Градус безумия</h3>
-        <canvas id="drinkingChart" class="max-h-64"></canvas>
+        <canvas id="drinkingChart" class="max-h-60"></canvas>
+      </div>
+
+      <div class="bg-zinc-900/80 border border-zinc-800 p-6 rounded-3xl flex flex-col justify-between md:col-span-2 lg:col-span-1">
+        <h3 class="text-sm font-mono uppercase tracking-wider text-rose-400 mb-4 text-center">Барная карта (закупка) 🍻</h3>
+        <canvas id="alcoChart" class="max-h-60"></canvas>
       </div>
     </div>
 
@@ -61,16 +67,14 @@
               <th class="p-3">Время ответа</th>
             </tr>
           </thead>
-          <tbody id="guests-tbody" class="divide-y divide-zinc-800/50">
-            <!-- Строки генерируются JS -->
-          </tbody>
+          <tbody id="guests-tbody" class="divide-y divide-zinc-800/50"></tbody>
         </table>
       </div>
     </div>
   </div>
 
   <script>
-    // Вставь ту же ссылку из SheetDB:
+    // ВСТАВЬ СВОЙ URL:
     const SHEETDB_URL = "https://sheetdb.io/api/v1/ol51f92mkep3z";
     const SECRET_PIN = "6767";
 
@@ -84,39 +88,117 @@
       }
     }
 
-    let attChart, drinkChart;
+    document.getElementById('pin-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkPin();
+    });
+
+    // Преобразование дат из формата Google Sheets в читаемый вид
+    function formatDate(val) {
+      if (!val) return '-';
+      const num = parseFloat(String(val).replace(',', '.'));
+      if (!isNaN(num) && num > 40000 && num < 60000) {
+        const d = new Date((num - 25569) * 86400 * 1000);
+        return d.toLocaleString('ru-RU', { 
+          day: '2-digit', month: '2-digit', year: 'numeric', 
+          hour: '2-digit', minute: '2-digit' 
+        });
+      }
+      return val;
+    }
+
+    // Словарь категорий крепкого и слабого алкоголя
+    const ALCO_CATEGORIES = {
+      'Пиво / Крафт': /(пив[а-я]*|крафт|beer|эль|ipa|лагер|пивко|пивас|стаут)/i,
+      'Сидр': /(сидр|сидор|cider|медовух)/i,
+      'Виски / Бурбон': /(виск[а-я]*|вискар[а-я]*|whiskey|whisky|бурбон|джек|скотч)/i,
+      'Водка': /(водк[а-я]*|водочк[а-я]*|vodka|беленьк|стопка)/i,
+      'Джин / Тоник': /(джин[а-я]*|gin|тоник|джин-тоник)/i,
+      'Вино / Шампанское': /(вин[оа-я]*|шампун|просекко|брют|игристое|каберне|мерло|асти)/i,
+      'Ром': /(ром[а-я]*|rum|бакарди|капитан)/i,
+      'Текила': /(текил[а-я]*|tequila)/i,
+      'Настойки / Ликеры': /(настойк[а-я]*|ягер|егер|jager|бейлис|лик[её]р)/i
+    };
+
+    // Полный фильтр безалкогольного и отказов (игнорируются на графике)
+    const NON_ALCO_REGEX = /(сок|колу|кола|пепси|чай|кофе|минералк|вод[ауы]|лимонад|б\/а|безалког|zero|морс|энергетик|ничего|не пью|нет|-)/i;
+
+    function parseDrinks(text) {
+      if (!text || typeof text !== 'string') return [];
+      const clean = text.toLowerCase().trim();
+
+      const tokens = clean.split(/[,/\\+&;]|\s+и\s+|\s+да\s+/);
+      const matched = new Set();
+
+      tokens.forEach(tok => {
+        const t = tok.trim();
+        if (!t || NON_ALCO_REGEX.test(t)) return;
+
+        let found = false;
+        for (const [category, regex] of Object.entries(ALCO_CATEGORIES)) {
+          if (regex.test(t)) {
+            matched.add(category);
+            found = true;
+          }
+        }
+
+        if (!found && t.length > 2) {
+          matched.add('Другой алкоголь');
+        }
+      });
+
+      return Array.from(matched);
+    }
+
+    let attChart = null;
+    let drinkChart = null;
+    let alcoChart = null;
 
     async function loadData() {
       try {
         const res = await fetch(SHEETDB_URL);
-        const data = await res.json();
+        const rawData = await res.json();
+
+        // Отсекаем пустые строки таблицы
+        const data = Array.isArray(rawData) ? rawData.filter(item => {
+          const name = item["Имя / Никнейм"];
+          return name && String(name).trim() !== "" && item["Придет ли (Явка)"];
+        }) : [];
 
         document.getElementById('total-count').innerText = data.length;
 
-        // Отрисовка строк таблицы (доступ по русским именам колонок)
+        // Рендер таблицы гостей
         const tbody = document.getElementById('guests-tbody');
         tbody.innerHTML = data.slice().reverse().map(g => `
-          <tr class="hover:bg-zinc-800/30">
-            <td class="p-3 font-semibold text-white">${g["Имя / Никнейм"] || 'Аноним'}</td>
-            <td class="p-3">${g["Придет ли (Явка)"] || '-'}</td>
+          <tr class="hover:bg-zinc-800/30 transition">
+            <td class="p-3 font-semibold text-white">${g["Имя / Никнейм"]}</td>
+            <td class="p-3">${g["Придет ли (Явка)"]}</td>
             <td class="p-3">${g["Настрой по выпивке"] || '-'}</td>
-            <td class="p-3 text-rose-300">${g["Что будет пить"] || '-'}</td>
-            <td class="p-3 text-xs text-zinc-500">${g["Дата и время ответа"] || '-'}</td>
+            <td class="p-3 text-rose-300 font-medium">${g["Что будет пить"] || '-'}</td>
+            <td class="p-3 text-xs text-zinc-500">${formatDate(g["Дата и время ответа"])}</td>
           </tr>
         `).join('');
 
-        // Сбор статистики под графики
+        // Сбор статистики
         const attCounts = { 'Буду железно': 0, 'Скорее да': 0, 'Скорее нет': 0, 'Скип': 0 };
         const drinkCounts = { 'В салат': 0, 'Кураж': 0, 'Символически': 0, 'Трезвый': 0 };
+        const alcoStats = {};
 
         data.forEach(item => {
           const att = item["Придет ли (Явка)"];
           const drk = item["Настрой по выпивке"];
           if (attCounts[att] !== undefined) attCounts[att]++;
           if (drinkCounts[drk] !== undefined) drinkCounts[drk]++;
+
+          // Анализируем алкоголь только у тех, кто идет и не выбрал "Трезвый"
+          if (att !== 'Скип' && drk !== 'Трезвый') {
+            const drinks = parseDrinks(item["Что будет пить"]);
+            drinks.forEach(d => {
+              alcoStats[d] = (alcoStats[d] || 0) + 1;
+            });
+          }
         });
 
-        // График 1: Явка
+        // 1. График: Явка
         if (attChart) attChart.destroy();
         attChart = new Chart(document.getElementById('attendanceChart'), {
           type: 'doughnut',
@@ -131,7 +213,7 @@
           options: { plugins: { legend: { labels: { color: '#a1a1aa' } } } }
         });
 
-        // График 2: Градус
+        // 2. График: Градус
         if (drinkChart) drinkChart.destroy();
         drinkChart = new Chart(document.getElementById('drinkingChart'), {
           type: 'bar',
@@ -140,7 +222,8 @@
             datasets: [{
               label: 'Людей',
               data: Object.values(drinkCounts),
-              backgroundColor: ['#f43f5e', '#a855f7', '#06b6d4', '#10b981']
+              backgroundColor: ['#f43f5e', '#a855f7', '#06b6d4', '#10b981'],
+              borderRadius: 8
             }]
           },
           options: {
@@ -152,8 +235,33 @@
           }
         });
 
+        // 3. График: Барная карта (сортировка по популярности)
+        const sortedAlco = Object.entries(alcoStats).sort((a, b) => b[1] - a[1]);
+        if (alcoChart) alcoChart.destroy();
+        alcoChart = new Chart(document.getElementById('alcoChart'), {
+          type: 'bar',
+          data: {
+            labels: sortedAlco.map(x => x[0]),
+            datasets: [{
+              label: 'Голосов',
+              data: sortedAlco.map(x => x[1]),
+              backgroundColor: '#fb7185',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1, color: '#71717a' }, grid: { color: '#27272a' } },
+              y: { ticks: { color: '#e4e4e7', font: { size: 11 } }, grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+
       } catch (e) {
-        alert("Ошибка загрузки данных из таблицы!");
+        console.error(e);
+        alert("Ошибка загрузки данных из SheetDB!");
       }
     }
   </script>
