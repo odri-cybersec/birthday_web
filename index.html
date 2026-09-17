@@ -6,37 +6,28 @@
   <title>ДЕНЬ РОЖДЕНИЯ НИКИ ВСЕМ БЫТЬ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: linear-gradient(rgba(10, 10, 15, 0.72), rgba(10, 10, 15, 0.72)), 
-                  url('bg.jpg') no-repeat center center fixed;
-      background-size: cover;
-    }
     .glass {
-      background: rgba(22, 22, 30, 0.75);
+      background: rgba(22, 22, 30, 0.78);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
   </style>
 </head>
-<body class="text-zinc-100 min-h-screen flex items-center justify-center p-4 selection:bg-rose-500 selection:text-white">
-<body class="bg-zinc-950 text-zinc-100 min-h-screen relative font-sans">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen relative font-sans selection:bg-rose-500 selection:text-white flex items-center justify-center p-4">
 
-  <!-- Фиксированный адаптивный фон -->
+  <!-- Фиксированный фон на весь экран (на смартфонах фокус левее, на пк по центру) -->
   <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div 
       class="w-full h-full bg-cover bg-left md:bg-center transition-all duration-500 scale-105"
-      style="background-image: url('bg.jpg');">
+      style="background-image: url('./bg.jpg');">
     </div>
-    <!-- Затемняющий градиент, чтобы вопросы анкеты четко читались -->
-    <div class="absolute inset-0 bg-black/60 md:bg-black/45 backdrop-blur-[1.5px]"></div>
+    <!-- Слой затемнения для читаемости текста -->
+    <div class="absolute inset-0 bg-black/60 md:bg-black/50 backdrop-blur-[2px]"></div>
   </div>
 
-  <!-- Дальше идет твой существующий контейнер с формой опросника -->
-  <div class="max-w-xl mx-auto px-4 py-8 relative z-10">
-    ...
-  </div>
-  <main id="app-card" class="glass w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl my-6 transition-all duration-300">
+  <!-- Главная карточка опросника (строго по центру экрана) -->
+  <main id="app-card" class="glass w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl my-6 transition-all duration-300 relative z-10">
     
     <!-- Шапка -->
     <header class="text-center mb-6">
@@ -59,11 +50,11 @@
         <label class="block text-xs font-mono uppercase tracking-wider text-zinc-400">
           01 // а ты кто?
         </label>
-        <input 
-          type="text" 
-          id="name" 
-          required 
-          placeholder="имя / ник в тг / как записан в контактах" 
+        <input
+          type="text"
+          id="name"
+          required
+          placeholder="имя / ник в тг / как записан в контактах"
           class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
         >
       </div>
@@ -80,7 +71,7 @@
           </label>
           <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Скорее да" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>🤙 6-7 из 10 что доеду.. )) </span>
+            <span>🤙 6-7 из 10 что доеду.. ))</span>
           </label>
           <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Скорее нет" class="accent-rose-500 w-4 h-4 mr-3">
@@ -88,7 +79,7 @@
           </label>
           <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="attendance" value="Скип" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>не я минус. я не пойду на лучший и самый разъебный день рождения. </span>
+            <span>не я минус. я не пойду на лучший и самый разъебный день рождения.</span>
           </label>
         </div>
       </div>
@@ -105,7 +96,7 @@
           </label>
           <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="drinking" value="Кураж" class="accent-rose-500 w-4 h-4 mr-3">
-            <span>я нормально буду пить) </span>
+            <span>я нормально буду пить)</span>
           </label>
           <label class="flex items-center p-3 rounded-2xl bg-black/40 border border-zinc-700/60 hover:border-zinc-500 cursor-pointer transition">
             <input type="radio" name="drinking" value="Символически" class="accent-rose-500 w-4 h-4 mr-3">
@@ -123,18 +114,18 @@
         <label class="block text-xs font-mono uppercase tracking-wider text-zinc-400">
           04 // ЧТО будешь пить?
         </label>
-        <input 
-          type="text" 
-          id="alcohol" 
-          required 
-          placeholder="джин, сидр, виски с колой, настойки, по стойке смирно..." 
+        <input
+          type="text"
+          id="alcohol"
+          required
+          placeholder="джин, сидр, виски с колой, настойки, по стойке смирно..."
           class="w-full px-4 py-3 rounded-2xl bg-black/40 border border-zinc-700/60 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 outline-none text-sm placeholder:text-zinc-500 transition"
         >
       </div>
 
       <!-- Кнопка -->
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         id="submit-btn"
         class="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-600 to-amber-500 text-white font-bold tracking-wide shadow-lg hover:opacity-95 active:scale-[0.98] transition cursor-pointer"
       >
@@ -151,10 +142,16 @@
       </p>
     </div>
 
+    <!-- Ссылка на админку -->
+    <footer class="text-center pt-6">
+      <a href="admin.html" class="text-[11px] text-zinc-500 hover:text-zinc-300 font-mono transition">
+        [ вход в штаб аналитики ]
+      </a>
+    </footer>
+
   </main>
 
   <script>
-    // Вставь свою ссылку из SheetDB:
     const SHEETDB_URL = "https://sheetdb.io/api/v1/ol51f92mkep3z";
 
     const form = document.getElementById('rsvp-form');
@@ -176,7 +173,6 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "Записываем в списки...";
 
-      // Ключи точно совпадают с названиями колонок в Google Sheets
       const payload = {
         data: [{
           "Имя / Никнейм": document.getElementById('name').value.trim(),
